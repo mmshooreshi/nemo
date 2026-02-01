@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whisper Chunk Transcriber</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <!-- WaveSurfer for Audio Visualization -->
+    <script src="https://unpkg.com/wavesurfer.js@7.8.6/dist/wavesurfer.min.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7.8.6/dist/plugins/regions.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        glass: "rgba(255, 255, 255, 0.05)",
+                        glassBorder: "rgba(255, 255, 255, 0.1)",
+                        neon: "#3b82f6",
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
+                    },
+                    keyframes: {
+                        shimmer: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            background-image: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .step-line {
+            position: absolute;
+            left: 24px;
+            top: 40px;
+            bottom: -20px;
+            width: 2px;
+            background: #334155;
+            z-index: 0;
+        }
+
+        .step-item:last-child .step-line {
+            display: none;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .recording-pulse {
+            animation: recordPulse 1.5s infinite;
+        }
+
+        .active-segment {
+            background-color: rgba(59, 130, 246, 0.15);
+            border-left-color: #3b82f6 !important;
+        }
+
+        @keyframes recordPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        /* Region Label Styling */
+        .region-label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(30, 41, 59, 0.9);
+            /* Dark Slate */
+            color: #94a3b8;
+            padding: 4px 8px;
+            border-radius: 0 0 8px 0;
+            font-size: 11px;
+            font-weight: 600;
+            pointer-events: none;
+            /* Let clicks pass through to the region */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+        }
+
+        .region-label i {
+            color: #3b82f6;
+            /* Blue Icon */
+        }
+
+        /* Silence Region Styling */
+        .wavesurfer-region[data-region-id*="silence"] {
+            z-index: 1 !important;
+            /* Keep silence behind speech regions */
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8 flex flex-col items-center">
+
+    <!-- Header -->
+    <header class="w-full max-w-4xl flex justify-between items-center mb-8">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <i class="fa-solid fa-wave-square text-white"></i>
+            </div>
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                WhisperChunk
+            </h1>
+        </div>
+        <button id="settingsBtn"
+            class="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+    </header>
+
+    <!-- API Settings Modal -->
+    <div id="apiKeyModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+        <div class="glass-panel w-full max-w-md p-6 rounded-2xl m-4 transform transition-all scale-100">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-yellow-500"></i> API Settings
+            </h2>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 uppercase font-bold mb-1">API Base URL</label>
+                    <input type="text" id="apiBaseUrlInput" placeholder="https://api.openai.com/v1"
+                        class="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-400 uppercase font-bold mb-1">API Key</label>
+                    <input type="password" id="apiKeyInput" placeholder="sk-..."
+                        class="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="clearAllCache()"
+                    class="flex-1 bg-slate-700 hover:bg-red-900/50 text-slate-300 hover:text-red-200 font-semibold py-3 rounded-lg transition-all border border-transparent hover:border-red-500/30">
+                    Clear Cache
+                </button>
+                <button onclick="saveSettings()"
+                    class="flex-[2] bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-blue-500/30 transition-all">
+                    Save & Continue
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 mt-4 text-center">Settings & Cache are saved locally.</p>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Left Column: Input & Controls -->
+        <div class="flex flex-col gap-6">
+
+            <!-- Upload Zone -->
+            <div class="glass-panel rounded-3xl p-1 relative overflow-hidden group">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+
+                <div id="dropZone"
+                    class="relative border-2 border-dashed border-slate-600 hover:border-blue-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer h-64">
+                    <input type="file" id="fileInput" class="hidden" accept=".mp3,.wav,.m4a,.ogg,.webm,.mp4">
+
+                    <!-- Default State -->
+                    <div id="dropZoneDefault" class="flex flex-col items-center gap-4">
+                        <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-2">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-lg font-medium text-white">Click or Drag Audio Here</p>
+                            <p class="text-sm text-slate-400 mt-1">MP3, WAV, M4A</p>
+                        </div>
+                    </div>
+
+                    <!-- File Selected State -->
+                    <div id="dropZoneFile" class="hidden flex-col items-center gap-4">
+                        <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-2">
+                            <i class="fa-solid fa-music text-2xl text-blue-400"></i>
+                        </div>
+                        <div>
+                            <p id="fileNameDisplay" class="text-lg font-medium text-white truncate max-w-[200px]">
+                                filename.mp3</p>
+                            <p id="fileSizeDisplay" class="text-sm text-slate-400 mt-1">4.2 MB</p>
+                        </div>
+                        <button onclick="clearFile(event)"
+                            class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-full text-white transition-colors">
+                            Change File
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OR Separator -->
+            <div class="flex items-center gap-4 opacity-50">
+                <div class="h-px bg-slate-600 flex-1"></div>
+                <span class="text-sm font-medium">OR</span>
+                <div class="h-px bg-slate-600 flex-1"></div>
+            </div>
+
+            <!-- Recorder -->
+            <div class="glass-panel rounded-2xl p-6 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <button id="recordBtn"
+                        class="w-12 h-12 rounded-full bg-red-500/20 hover:bg-red-500/30 text-red-500 flex items-center justify-center transition-all border border-red-500/50">
+                        <i class="fa-solid fa-microphone text-xl"></i>
+                    </button>
+                    <div>
+                        <p class="font-medium">Record Voice</p>
+                        <p id="recordTimer" class="text-sm text-slate-400 font-mono">00:00</p>
+                    </div>
+                </div>
+                <canvas id="visualizer" class="h-10 w-24 opacity-50 hidden"></canvas>
+            </div>
+
+            <!-- Action Button -->
+            <button id="processBtn" disabled
+                class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-lg font-bold py-4 rounded-xl shadow-lg shadow-blue-900/20 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                <span>Start Smart Processing</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <div id="cacheNotice"
+                class="hidden text-center text-xs text-green-400 bg-green-900/20 py-2 rounded-lg border border-green-900/50">
+                <i class="fa-solid fa-rotate-right mr-1"></i> Resumable session detected
+            </div>
+
+        </div>
+
+        <!-- Right Column: Logs & Output -->
+        <div class="flex flex-col gap-6 h-full min-h-[500px]">
+
+            <!-- Tabs -->
+            <div class="flex gap-2 p-1 bg-slate-800/50 rounded-xl w-fit self-start sm:self-auto">
+                <button onclick="switchTab('logs')" id="tab-logs"
+                    class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-white shadow-sm transition-all">Process
+                    Logs</button>
+                <button onclick="switchTab('result')" id="tab-result"
+                    class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white transition-all">Transcription</button>
+            </div>
+
+            <!-- Logs Panel -->
+            <div id="panel-logs" class="glass-panel rounded-2xl flex-1 p-6 relative overflow-hidden flex flex-col">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500 hidden"
+                    id="globalProgressLine"></div>
+
+                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Operations Log</h3>
+
+                <div id="logContainer" class="flex-1 overflow-y-auto pr-2 space-y-0 relative">
+                    <!-- Logs will be injected here -->
+                    <div class="text-center mt-20 text-slate-600">
+                        <i class="fa-solid fa-terminal text-4xl mb-3 opacity-30"></i>
+                        <p>Waiting for input...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Panel -->
+            <div id="panel-result" class="glass-panel rounded-2xl flex-1 hidden flex-col relative h-[600px]">
+                <!-- Sticky Player Header -->
+                <div class="p-4 border-b border-white/10 bg-slate-900/90 backdrop-blur-md z-10 shrink-0 m-2 rounded-2xl">
+                    <div id="waveform" class="w-full mb-4 opacity-80 hover:opacity-100 transition-opacity"></div>
+
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <button onclick="togglePlay()" id="playPauseBtn"
+                                class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-full text-white flex items-center justify-center transition-all shadow-lg shadow-blue-500/30">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <span id="currentTime" class="text-xs font-mono text-blue-400">00:00</span>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="copyText()"
+                                class="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors"
+                                title="Copy Text">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                            <button onclick="downloadText()"
+                                class="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors"
+                                title="Download">
+                                <i class="fa-solid fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scrollable Transcript -->
+                <div id="transcriptionOutput" class="flex-1 overflow-y-auto p-6 scroll-smooth space-y-2 max-h-[500px]"></div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- JS Logic -->
+    <script>
+        // --- State Management ---
+        const DEFAULT_BASE_URL = "https://aisland.co/v1";
+        const DEFAULT_API_KEY = "sk-a7uITXEK1eCFMVFCE50f2b9396B745F79d2cDcAe0a882dE5";
+
+        let state = {
+            apiKey: localStorage.getItem('openai_api_key') || DEFAULT_API_KEY,
+            baseUrl: localStorage.getItem('openai_base_url') || DEFAULT_BASE_URL,
+            file: null,
+            isRecording: false,
+            mediaRecorder: null,
+            audioChunks: [],
+            isProcessing: false,
+            logs: [],
+            wavesurfer: null,
+            wsRegions: null,
+            isUserHovering: false,
+            segments: []
+        };
+
+        const elements = {
+            dropZone: document.getElementById('dropZone'),
+            fileInput: document.getElementById('fileInput'),
+            dropZoneDefault: document.getElementById('dropZoneDefault'),
+            dropZoneFile: document.getElementById('dropZoneFile'),
+            fileName: document.getElementById('fileNameDisplay'),
+            fileSize: document.getElementById('fileSizeDisplay'),
+            processBtn: document.getElementById('processBtn'),
+            recordBtn: document.getElementById('recordBtn'),
+            recordTimer: document.getElementById('recordTimer'),
+            visualizer: document.getElementById('visualizer'),
+            logContainer: document.getElementById('logContainer'),
+            transcriptionOutput: document.getElementById('transcriptionOutput'),
+            globalProgress: document.getElementById('globalProgressLine'),
+            apiKeyModal: document.getElementById('apiKeyModal'),
+            apiKeyInput: document.getElementById('apiKeyInput'),
+            apiBaseUrlInput: document.getElementById('apiBaseUrlInput'),
+            cacheNotice: document.getElementById('cacheNotice')
+        };
+
+        // Detect if user is interacting with transcript to prevent annoying auto-scroll
+        elements.transcriptionOutput.addEventListener('mouseenter', () => {
+            state.isUserHovering = true;
+        });
+        elements.transcriptionOutput.addEventListener('mouseleave', () => {
+            state.isUserHovering = false;
+        });
+        // --- Init ---
+        elements.apiKeyInput.value = state.apiKey;
+        elements.apiBaseUrlInput.value = state.baseUrl;
+
+        if (!state.apiKey) {
+            elements.apiKeyModal.classList.remove('hidden');
+        }
+
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            elements.apiKeyInput.value = state.apiKey;
+            elements.apiBaseUrlInput.value = state.baseUrl;
+            elements.apiKeyModal.classList.remove('hidden');
+        });
+
+        function saveSettings() {
+            const key = elements.apiKeyInput.value.trim();
+            const url = elements.apiBaseUrlInput.value.trim().replace(/\/+$/, "");
+
+            if (key) {
+                state.apiKey = key;
+                localStorage.setItem('openai_api_key', key);
+            }
+
+            if (url) {
+                state.baseUrl = url;
+                localStorage.setItem('openai_base_url', url);
+            }
+
+            elements.apiKeyModal.classList.add('hidden');
+        }
+
+        function clearAllCache() {
+            if (confirm('Are you sure you want to clear all transcription cache?')) {
+                // Remove keys starting with whisper_work
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('whisper_work_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                alert('Cache cleared.');
+            }
+        }
+
+        // --- File Handling ---
+        elements.dropZone.addEventListener('click', () => elements.fileInput.click());
+
+        elements.dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            elements.dropZone.classList.add('border-blue-500', 'bg-slate-800/50');
+        });
+
+        elements.dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            elements.dropZone.classList.remove('border-blue-500', 'bg-slate-800/50');
+        });
+
+        elements.dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            elements.dropZone.classList.remove('border-blue-500', 'bg-slate-800/50');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        elements.fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+        function handleFile(file) {
+            if (!file) return;
+            if (!file.type.match('audio.*') && !file.type.match('video.*')) {
+                addLog('Error', 'Invalid file type. Please upload audio.', 'error');
+                return;
+            }
+
+            state.file = file;
+            elements.fileName.innerText = file.name;
+            elements.fileSize.innerText = formatBytes(file.size);
+
+            elements.dropZoneDefault.classList.add('hidden');
+            elements.dropZoneFile.classList.remove('hidden');
+            elements.dropZoneFile.classList.add('flex');
+
+            // Check cache existence
+            const fileId = `whisper_work_${file.name}_${file.size}`;
+            if (localStorage.getItem(fileId)) {
+                elements.cacheNotice.classList.remove('hidden');
+            } else {
+                elements.cacheNotice.classList.add('hidden');
+            }
+
+            elements.processBtn.disabled = false;
+
+            elements.logContainer.innerHTML = '';
+            addLog('System', `Loaded ${file.name} (${formatBytes(file.size)})`, 'info');
+
+            // Init Player immediately
+            initPlayer(file);
+        }
+
+        function clearFile(e) {
+            e.stopPropagation();
+            state.file = null;
+            if (state.wavesurfer) {
+                state.wavesurfer.destroy();
+                state.wavesurfer = null;
+            }
+            elements.fileInput.value = '';
+            elements.dropZoneDefault.classList.remove('hidden');
+            elements.dropZoneFile.classList.add('hidden');
+            elements.dropZoneFile.classList.remove('flex');
+            elements.processBtn.disabled = true;
+            elements.cacheNotice.classList.add('hidden');
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        }
+
+        // --- Recording Logic ---
+        elements.recordBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (state.isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                state.mediaRecorder = new MediaRecorder(stream);
+                state.audioChunks = [];
+
+                state.mediaRecorder.ondataavailable = (event) => {
+                    state.audioChunks.push(event.data);
+                };
+
+                state.mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(state.audioChunks, { type: 'audio/wav' });
+                    const file = new File([audioBlob], `recording_${new Date().getTime()}.wav`, { type: 'audio/wav' });
+                    handleFile(file);
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                state.mediaRecorder.start();
+                state.isRecording = true;
+
+                elements.recordBtn.classList.add('recording-pulse', 'bg-red-500', 'text-white');
+                elements.visualizer.classList.remove('hidden');
+                elements.processBtn.disabled = true;
+
+                startTimer();
+                visualizeAudio(stream);
+
+            } catch (err) {
+                console.error(err);
+                alert('Microphone access denied or not available.');
+            }
+        }
+
+        function stopRecording() {
+            state.mediaRecorder.stop();
+            state.isRecording = false;
+            elements.recordBtn.classList.remove('recording-pulse', 'bg-red-500', 'text-white');
+            elements.visualizer.classList.add('hidden');
+            stopTimer();
+        }
+
+        let timerInterval;
+        function startTimer() {
+            let seconds = 0;
+            elements.recordTimer.innerText = "00:00";
+            timerInterval = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const secs = (seconds % 60).toString().padStart(2, '0');
+                elements.recordTimer.innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function visualizeAudio(stream) {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioCtx.createMediaStreamSource(stream);
+            const analyser = audioCtx.createAnalyser();
+            source.connect(analyser);
+            analyser.fftSize = 64;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            const canvas = elements.visualizer;
+            const ctx = canvas.getContext("2d");
+
+            function draw() {
+                if (!state.isRecording) return;
+                requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i] / 2;
+                    ctx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+            }
+            draw();
+        }
+
+        // --- VAD & Audio Utilities ---
+
+        function getRMS(data) {
+            let sum = 0;
+            // Downsample for performance (check every 5th sample)
+            for (let i = 0; i < data.length; i += 5) {
+                sum += data[i] * data[i];
+            }
+            return Math.sqrt(sum / (data.length / 5));
+        }
+
+        function floatTo16BitPCM(view, offset, input) {
+            for (let i = 0; i < input.length; i++, offset += 2) {
+                let s = Math.max(-1, Math.min(1, input[i]));
+                s = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                view.setInt16(offset, s, true);
+            }
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        function encodeWAV(samples, sampleRate) {
+            const buffer = new ArrayBuffer(44 + samples.length * 2);
+            const view = new DataView(buffer);
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + samples.length * 2, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, samples.length * 2, true);
+
+            floatTo16BitPCM(view, 44, samples);
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        function smartSplit(audioBuffer, maxDuration) {
+            const sr = audioBuffer.sampleRate;
+            const channelData = audioBuffer.getChannelData(0); // Analyze first channel (mono VAD)
+            const chunks = [];
+            let startSample = 0;
+            const maxSamples = maxDuration * sr;
+            const silenceThresh = 0.015; // RMS Threshold for silence
+
+            while (startSample < channelData.length) {
+                let endSample = Math.min(startSample + maxSamples, channelData.length);
+
+                // Only try to find a soft cut if we aren't at the very end
+                if (endSample < channelData.length) {
+                    // Look backwards from max limit for a silence gap
+                    const scanWindow = 2.0 * sr; // Look in last 2 seconds
+                    const scanStart = Math.max(startSample + (1.0 * sr), endSample - scanWindow);
+
+                    let bestSplit = -1;
+                    let lowestRMS = 1.0;
+
+                    const windowSize = Math.floor(0.1 * sr); // 100ms analysis window
+
+                    for (let i = endSample; i > scanStart; i -= windowSize) {
+                        const windowStart = Math.max(startSample, i - windowSize);
+                        const slice = channelData.slice(windowStart, i);
+                        const rms = getRMS(slice);
+
+                        if (rms < silenceThresh) {
+                            bestSplit = i;
+                            break; // Found good silence, stop
+                        }
+                        if (rms < lowestRMS) {
+                            lowestRMS = rms;
+                            // Keep candidate in case we don't find perfect silence
+                            if (rms < 0.05) bestSplit = i;
+                        }
+                    }
+
+                    if (bestSplit !== -1) {
+                        endSample = bestSplit;
+                    }
+                }
+
+                // Prepare PCM data for WAV
+                const chunkSamples = channelData.slice(startSample, endSample);
+                const blob = encodeWAV(chunkSamples, sr);
+
+                chunks.push({
+                    blob,
+                    start: startSample / sr,
+                    end: endSample / sr
+                });
+
+                startSample = endSample;
+            }
+            return chunks;
+        }
+
+        // Reconstruct chunks from cached VAD data (skips scanning, only encoding)
+        function rehydrateChunks(audioBuffer, vadData) {
+            const sr = audioBuffer.sampleRate;
+            const channelData = audioBuffer.getChannelData(0);
+            return vadData.map(v => {
+                const startSample = Math.floor(v.start * sr);
+                const endSample = Math.floor(v.end * sr);
+                const chunkSamples = channelData.slice(startSample, endSample);
+                const blob = encodeWAV(chunkSamples, sr);
+                return {
+                    blob,
+                    start: v.start,
+                    end: v.end
+                };
+            });
+        }
+
+        function saveCache(fileId, data) {
+            try {
+                localStorage.setItem(fileId, JSON.stringify(data));
+            } catch (e) {
+                console.warn("Cache quota exceeded, failed to save progress.");
+            }
+        }
+
+
+        // --- Processing Logic ---
+        elements.processBtn.addEventListener('click', async () => {
+            if (!state.file || state.isProcessing) return;
+
+            // Cache setup
+            const fileId = `whisper_work_${state.file.name}_${state.file.size}`;
+            let cachedWork = JSON.parse(localStorage.getItem(fileId) || '{"segments": {}, "vad": null}');
+
+            state.isProcessing = true;
+            state.segments = []; // Clear previous segments (we will rebuild from cache+new)
+            if (state.wsRegions) state.wsRegions.clearRegions(); // Clear waveform regions
+            elements.transcriptionOutput.innerHTML = ''; // Clear text
+
+            elements.processBtn.disabled = true;
+            elements.processBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...`;
+            elements.globalProgress.classList.remove('hidden');
+            switchTab('logs');
+
+            try {
+                // 1. Decode Audio
+                const logId1 = addLog('Analysis', `Decoding audio data...`, 'loading');
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await state.file.arrayBuffer();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                updateLog(logId1, 'success', `Audio decoded (${formatBytes(state.file.size)})`);
+
+                // 2. VAD Split or Restore
+                let chunks;
+
+                if (cachedWork.vad && cachedWork.vad.length > 0) {
+                    addLog('Cache', `Restored ${cachedWork.vad.length} chunks from VAD cache`, 'success');
+                    chunks = rehydrateChunks(audioBuffer, cachedWork.vad);
+                } else {
+                    const logId2 = addLog('VAD Processing', `Scanning for silence & splitting (Max 10s)...`, 'loading');
+                    chunks = smartSplit(audioBuffer, 10);
+                    updateLog(logId2, 'success', `Split into ${chunks.length} smart-chunks via VAD`);
+
+                    // Save VAD to cache
+                    cachedWork.vad = chunks.map(c => ({ start: c.start, end: c.end }));
+                    saveCache(fileId, cachedWork);
+                }
+
+                let fullTranscription = "";
+
+                // 3. Process Loop
+                for (let i = 0; i < chunks.length; i++) {
+                    const chunkData = chunks[i];
+                    // Create a deterministic key for this chunk based on start time
+                    const chunkId = `chunk_${i}_${chunkData.start.toFixed(3)}`;
+
+                    let newSegments = [];
+
+                    // CHECK CACHE
+                    if (cachedWork.segments && cachedWork.segments[chunkId]) {
+                        addLog('Cache', `Restored Chunk ${i + 1}/${chunks.length} from cache`, 'success');
+                        newSegments = cachedWork.segments[chunkId];
+                        appendTranscription(newSegments);
+                        continue; // Skip API Call
+                    }
+
+                    // Create File object for API
+                    const chunkFile = new File([chunkData.blob], `chunk_${i}.wav`, { type: 'audio/wav' });
+
+                    const logId = addLog('Upload', `Transcribing Chunk ${i + 1}/${chunks.length} (${(chunkData.end - chunkData.start).toFixed(1)}s)...`, 'loading');
+
+                    // Transcribe
+                    const result = await transcribeChunk(chunkFile);
+
+                    updateLog(logId, 'success', `Chunk ${i + 1} processed`);
+
+                    // Handle segments and adjust timestamp
+                    if (result.segments) {
+                        newSegments = result.segments.map(seg => ({
+                            ...seg,
+                            start: seg.start + chunkData.start,
+                            end: seg.end + chunkData.start
+                        }));
+                    } else if (result.text) {
+                        // Fallback
+                        newSegments = [{
+                            text: result.text,
+                            start: chunkData.start,
+                            end: chunkData.end,
+                            speaker: "Unknown"
+                        }];
+                    }
+
+                    appendTranscription(newSegments);
+
+                    // Save to Cache
+                    if (!cachedWork.segments) cachedWork.segments = {};
+                    cachedWork.segments[chunkId] = newSegments;
+                    saveCache(fileId, cachedWork);
+                }
+
+                addLog('Success', 'Full audio transcribed successfully.', 'success');
+                switchTab('result');
+
+            } catch (error) {
+                console.error(error);
+                addLog('Error', error.message || "An unexpected error occurred", 'error');
+            } finally {
+                state.isProcessing = false;
+                elements.processBtn.disabled = false;
+                elements.processBtn.innerHTML = `<span>Start Smart Processing</span><i class="fa-solid fa-arrow-right"></i>`;
+                elements.globalProgress.classList.add('hidden');
+            }
+        });
+
+        async function transcribeChunk(fileChunk) {
+            const formData = new FormData();
+            formData.append("file", fileChunk);
+            formData.append("model", "gpt-4o-transcribe-diarize");
+            formData.append("response_format", "diarized_json");
+            formData.append("chunking_strategy", "auto");
+
+            const endpoint = `${state.baseUrl}/audio/transcriptions`;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${state.apiKey}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    // Read raw text to debug "unexpected_response_format"
+                    const errText = await response.text();
+                    console.error("Raw API Error Response:", errText);
+
+                    let err = {};
+                    try {
+                        err = JSON.parse(errText);
+                    } catch (e) {
+                        // Failed to parse JSON
+                    }
+
+                    // Check for standard OpenAI error structure OR root-level message (OneAPI/Proxies)
+                    const errorMessage = err.error?.message || err.message || `API Error (${response.status}): ${response.statusText || errText}`;
+                    throw new Error(errorMessage);
+                }
+
+                return await response.json();
+            } catch (e) {
+                throw e;
+            }
+        }
+
+        // --- UI Utils ---
+        function switchTab(tabName) {
+            if (tabName === 'logs') {
+                document.getElementById('panel-logs').classList.remove('hidden');
+                document.getElementById('panel-logs').classList.add('flex');
+                document.getElementById('panel-result').classList.add('hidden');
+                document.getElementById('panel-result').classList.remove('flex');
+                document.getElementById('tab-logs').classList.replace('text-slate-400', 'text-white');
+                document.getElementById('tab-logs').classList.replace('bg-transparent', 'bg-slate-700');
+                document.getElementById('tab-result').classList.replace('text-white', 'text-slate-400');
+                document.getElementById('tab-result').classList.remove('bg-slate-700');
+            } else {
+                document.getElementById('panel-logs').classList.add('hidden');
+                document.getElementById('panel-logs').classList.remove('flex');
+                document.getElementById('panel-result').classList.remove('hidden');
+                document.getElementById('panel-result').classList.add('flex');
+                document.getElementById('tab-logs').classList.replace('text-white', 'text-slate-400');
+                document.getElementById('tab-logs').classList.remove('bg-slate-700');
+                document.getElementById('tab-result').classList.replace('text-slate-400', 'text-white');
+                document.getElementById('tab-result').classList.add('bg-slate-700');
+            }
+        }
+
+        function addLog(type, message, status) {
+            const id = 'log-' + Math.random().toString(36).substr(2, 9);
+            const icon = status === 'loading' ? '<i class="fa-solid fa-circle-notch fa-spin text-blue-400"></i>' :
+                status === 'success' ? '<i class="fa-solid fa-check text-green-400"></i>' :
+                    status === 'error' ? '<i class="fa-solid fa-triangle-exclamation text-red-400"></i>' :
+                        '<i class="fa-solid fa-info-circle text-slate-400"></i>';
+
+            const html = `
+                <div id="${id}" class="step-item relative pl-10 pb-8 fade-in">
+                    <div class="step-line absolute left-[11px] top-8 h-full w-0.5 bg-slate-700"></div>
+                    <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center z-10 shadow-lg">
+                        ${icon}
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">${type}</span>
+                        <span class="text-sm text-slate-200">${message}</span>
+                        ${status === 'loading' ? '<div class="h-1 w-full bg-slate-700 rounded-full mt-2 overflow-hidden"><div class="h-full bg-blue-500 w-1/2 animate-[shimmer_1s_infinite]"></div></div>' : ''}
+                    </div>
+                </div>
+            `;
+            elements.logContainer.insertAdjacentHTML('beforeend', html);
+            elements.logContainer.scrollTop = elements.logContainer.scrollHeight;
+            return id;
+        }
+
+        function updateLog(id, status, newMessage) {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            const iconContainer = el.querySelector('.w-6');
+            const messageEl = el.querySelectorAll('span')[1];
+
+            if (status === 'success') {
+                iconContainer.innerHTML = '<i class="fa-solid fa-check text-green-400"></i>';
+                iconContainer.classList.add('border-green-500/50');
+            } else if (status === 'error') {
+                iconContainer.innerHTML = '<i class="fa-solid fa-xmark text-red-400"></i>';
+                iconContainer.classList.add('border-red-500/50');
+            }
+
+            if (newMessage) messageEl.innerText = newMessage;
+
+            const pBar = el.querySelector('.h-1');
+            if (pBar) pBar.remove();
+        }
+
+        function appendTranscription(segments) {
+            const container = elements.transcriptionOutput;
+
+            segments.forEach(seg => {
+                // 1. Store in global state for seeking/highlighting logic
+                state.segments.push(seg);
+                const segIndex = state.segments.length - 1;
+
+                // 2. Prepare Speaker Visuals (Icon & Name)
+                // Check if speaker string exists, otherwise default
+                const speakerName = seg.speaker || 'Speaker';
+
+                // Simple logic to vary icons: 
+                // If "Speaker 2", "B", or "Agent" use a tie icon, otherwise generic user
+                const isAlternate = /2|B|Agent|Interviewer/i.test(speakerName);
+                const iconClass = isAlternate ? 'fa-user-tie' : 'fa-user';
+
+                // 3. Create Custom HTML Label for Waveform Overlay
+                const labelEl = document.createElement('div');
+                labelEl.className = 'region-label'; // Relies on the CSS added earlier
+                labelEl.innerHTML = `
+            <i class="fa-solid ${iconClass}"></i>
+            <span>${speakerName}</span>
+        `;
+
+                // 4. Add Region to WaveSurfer
+                if (state.wsRegions) {
+                    state.wsRegions.addRegion({
+                        id: `region-${segIndex}`, // Track ID to link with UI if needed
+                        start: seg.start,
+                        end: seg.end,
+                        content: labelEl, // Pass the actual HTML element
+                        color: 'rgba(59, 130, 246, 0.1)', // Light blue tint
+                        drag: false,
+                        resize: false
+                    });
+                }
+
+                // 5. Create Sidebar Transcript Item
+                const startTime = formatTime(seg.start);
+                const endTime = formatTime(seg.end);
+
+                // Create the Speaker Badge for the Sidebar
+                const speakerBadge = seg.speaker
+                    ? `<span class="bg-indigo-600/30 text-indigo-300 px-1.5 py-0.5 rounded ml-2 uppercase tracking-wide font-bold text-[10px] border border-indigo-500/30">
+                <i class="fa-solid ${iconClass} mr-1 text-[9px]"></i>${seg.speaker}
+               </span>`
+                    : '';
+
+                const div = document.createElement('div');
+                div.id = `seg-${segIndex}`;
+                // On click, jump player to this segment
+                div.onclick = () => playSegment(seg.start);
+                div.className = "mb-2 p-3 rounded-lg transition-all border-l-4 border-transparent hover:bg-white/5 cursor-pointer group hover:border-blue-500";
+
+                div.innerHTML = `
+            <div class="flex items-center gap-2 text-xs text-slate-500 mb-1 font-mono">
+                <span class="bg-slate-800 px-1.5 py-0.5 rounded text-blue-400 border border-slate-700">${startTime}</span>
+                <i class="fa-solid fa-arrow-right text-[10px] opacity-30"></i>
+                <span class="bg-slate-800 px-1.5 py-0.5 rounded text-blue-400 border border-slate-700">${endTime}</span>
+                ${speakerBadge}
+            </div>
+            <p class="text-slate-200 leading-relaxed group-hover:text-white transition-colors text-[15px]">
+                ${seg.text}
+            </p>
+        `;
+
+                container.appendChild(div);
+            });
+
+            // Auto-scroll sidebar to bottom as new chunks arrive
+            // container.scrollTop = container.scrollHeight;
+        }
+        /**
+         * Analyzes audio buffer and adds RED regions for silence
+         */
+        function highlightSilence() {
+            if (!state.wavesurfer) return;
+
+            const decodedData = state.wavesurfer.getDecodedData();
+            if (!decodedData) return;
+
+            const rawData = decodedData.getChannelData(0); // Analyze left channel
+            const sampleRate = decodedData.sampleRate;
+            const silenceThreshold = 0.01; // RMS amplitude below this is "silence"
+            const minSilenceDuration = 0.5; // Only mark silence > 0.5 seconds
+
+            const regions = [];
+            let isSilent = false;
+            let silenceStart = 0;
+
+            // Performance: Skip samples (analyze every 1024th sample)
+            const step = 1024;
+
+            for (let i = 0; i < rawData.length; i += step) {
+                // Calculate RMS of this small chunk
+                let sum = 0;
+                let count = 0;
+                for (let j = 0; j < step && (i + j) < rawData.length; j++) {
+                    sum += rawData[i + j] * rawData[i + j];
+                    count++;
+                }
+                const rms = Math.sqrt(sum / count);
+
+                if (rms < silenceThreshold) {
+                    if (!isSilent) {
+                        isSilent = true;
+                        silenceStart = i / sampleRate;
+                    }
+                } else {
+                    if (isSilent) {
+                        isSilent = false;
+                        const silenceEnd = i / sampleRate;
+                        const duration = silenceEnd - silenceStart;
+
+                        if (duration > minSilenceDuration) {
+                            regions.push({ start: silenceStart, end: silenceEnd });
+                        }
+                    }
+                }
+            }
+
+            // Add Red Regions
+            if (state.wsRegions) {
+                regions.forEach(r => {
+                    state.wsRegions.addRegion({
+                        id: `silence-${Math.random()}`,
+                        start: r.start,
+                        end: r.end,
+                        color: 'rgba(239, 68, 68, 0.3)', // Red, 30% opacity
+                        drag: false,
+                        resize: false,
+                        content: '' // No label for silence
+                    });
+                });
+
+                addLog('Analysis', `Found ${regions.length} silent segments`, 'info');
+            }
+        }
+        // --- WaveSurfer Player Logic ---
+
+        function initPlayer(file) {
+            if (state.wavesurfer) state.wavesurfer.destroy();
+
+            const container = document.getElementById('waveform');
+            container.innerHTML = ''; // Clear previous
+
+            // Safety check for plugin
+            if (window.RegionsPlugin) {
+                state.wsRegions = RegionsPlugin.create();
+            } else {
+                console.warn("RegionsPlugin not loaded, skipping regions.");
+                state.wsRegions = null;
+            }
+
+            const wsOptions = {
+                container: container,
+                waveColor: '#475569',
+                progressColor: '#3b82f6',
+                cursorColor: '#60a5fa',
+                barWidth: 2,
+                barGap: 1,
+                barRadius: 2,
+                height: 64,
+                plugins: []
+            };
+
+            if (state.wsRegions) {
+                wsOptions.plugins.push(state.wsRegions);
+            }
+
+            // --- ONLY INITIALIZE ONCE ---
+            state.wavesurfer = WaveSurfer.create(wsOptions);
+            state.wavesurfer.loadBlob(file);
+
+            // Event Listeners
+            state.wavesurfer.on('ready', () => {
+                console.log("Waveform ready - analyzing silence...");
+                highlightSilence();
+            });
+
+            state.wavesurfer.on('audioprocess', (time) => {
+                document.getElementById('currentTime').innerText = formatTime(time);
+                highlightActiveSegment(time);
+            });
+
+            state.wavesurfer.on('finish', () => {
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
+            });
+
+            state.wavesurfer.on('play', () => {
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+            });
+
+            state.wavesurfer.on('pause', () => {
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
+            });
+        }
+        function togglePlay() {
+            if (state.wavesurfer) {
+                state.wavesurfer.playPause();
+            }
+        }
+
+        function playSegment(startTime) {
+            if (state.wavesurfer) {
+                state.wavesurfer.setTime(startTime);
+                state.wavesurfer.play();
+            }
+        }
+
+        function highlightActiveSegment(time) {
+            // Find segment containing current time
+            const activeIdx = state.segments.findIndex(s => time >= s.start && time <= s.end);
+
+            // Remove active class from all
+            document.querySelectorAll('.active-segment').forEach(el => el.classList.remove('active-segment'));
+
+            if (activeIdx !== -1) {
+                const el = document.getElementById(`seg-${activeIdx}`);
+                if (el) {
+                    el.classList.add('active-segment');
+
+                    // UX FIX: Only auto-scroll if the user is NOT hovering over the text
+                    if (!state.isUserHovering) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+        }
+        function formatTime(seconds) {
+            const pad = (num) => num.toString().padStart(2, '0');
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            const ms = Math.floor((seconds % 1) * 10); // One decimal for precision
+            return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}.${ms}` : `${pad(m)}:${pad(s)}.${ms}`;
+        }
+
+        function copyText() {
+            const text = elements.transcriptionOutput.innerText;
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard!');
+        }
+
+        function downloadText() {
+            const text = elements.transcriptionOutput.innerText;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `transcription_${new Date().toISOString()}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+    </script>
+</body>
+
+</html>
