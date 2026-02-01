@@ -596,7 +596,8 @@
                             // API CONSTRAINT: Reference audio must be between 1.2s and 10s
                             if (duration >= 1.2) {
                                 // If segment is too long, just take the first 9 seconds
-                                const safeEnd = (duration > 9.0) ? (seg.start + 9.0) : seg.end;
+                                // const safeEnd = (duration > 9.0) ? (seg.start + 9.0) : seg.end;
+                                const safeEnd = (duration > 4.0) ? (seg.start + 4.0) : seg.end;
 
                                 // Extract audio using GLOBAL timestamps (seg.start / safeEnd)
                                 const base64Ref = await audioBufferToWavBase64(audioBuffer, seg.start, safeEnd);
