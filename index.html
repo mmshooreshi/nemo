@@ -984,7 +984,7 @@
         async function loadDemo(event) {
             event.stopPropagation();
             try {
-                const response = await fetch('demo.mp3');
+                const response = await fetch('https://raw.githubusercontent.com/mmshooreshi/nemo/refs/heads/main/demo.mp3');
                 if (!response.ok) throw new Error("Demo file missing.");
                 const blob = await response.blob();
                 const file = new File([blob], "demo.mp3", { type: "audio/mpeg" });

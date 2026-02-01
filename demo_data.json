@@ -3,10 +3,10 @@
         "chunk_0_0.000": [
             {
                 "type": "transcript.text.segment",
-                "text": " خود میگفتم به تو",
+                "text": " خود میگفتم ببین",
                 "speaker": "A",
-                "start": 0.6500000000000001,
-                "end": 1.8499999999999999,
+                "start": 0.6000000000000001,
+                "end": 2.05,
                 "id": "seg_0"
             },
             {
@@ -14,15 +14,15 @@
                 "text": " کیو مثلا",
                 "speaker": "B",
                 "start": 2.8499999999999996,
-                "end": 3.6499999999999995,
+                "end": 3.6999999999999993,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " آره این فایل رو بهت میدم این فایل رو برو تست کن ببین که داستانش شکل میشه",
+                "text": " آره این فایل رو بهت میدم این فایل رو باید تست کن ببین که داستانش شکلی میشه",
                 "speaker": "A",
-                "start": 4.35,
-                "end": 9.650000000000002,
+                "start": 4.1499999999999995,
+                "end": 9.700000000000001,
                 "id": "seg_2"
             }
         ],
@@ -30,42 +30,42 @@
             {
                 "type": "transcript.text.segment",
                 "text": " ایوه",
-                "speaker": "A",
+                "speaker": "B",
                 "start": 10,
-                "end": 10.4,
+                "end": 10.35,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " آره بعد الان اسمش چی نمیدونم شرطی چی میشه نت وایز میشه قطع میشه یا نه",
-                "speaker": "B",
+                "text": " آره بعد الان اسم چیه نمیدونم شرح چی میشه نتورس میشه قطع میشه یا نه",
+                "speaker": "A",
                 "start": 10.9,
-                "end": 16.9,
+                "end": 17.15,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
                 "text": " ولی دیگه باید بسازیم برحال دیگه",
-                "speaker": "B",
-                "start": 17.4,
-                "end": 19.3,
+                "speaker": "A",
+                "start": 17.599999999999998,
+                "end": 19.4,
                 "id": "seg_2"
             }
         ],
         "chunk_2_20.000": [
             {
                 "type": "transcript.text.segment",
-                "text": " Outta",
-                "speaker": "A",
+                "text": " How to",
+                "speaker": "B",
                 "start": 20.05,
                 "end": 20.65,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " تا توریه من رو چیز کار کردم منگوی اسمش چیه یارو",
-                "speaker": "B",
-                "start": 23.2,
+                "text": " توی یه من رو چیز کار کردم منگوی اسمش چیه یارو",
+                "speaker": "A",
+                "start": 23.3,
                 "end": 28.65,
                 "id": "seg_1"
             }
@@ -73,17 +73,33 @@
         "chunk_3_30.000": [
             {
                 "type": "transcript.text.segment",
-                "text": " پایانتیت خوب این یه مودل ها داره تو مودل ها به مودله مختلف گذاشتن کلن ولی بستگیری مودل ها",
+                "text": " پایه یعنی تیتخواب",
                 "speaker": "A",
                 "start": 30,
-                "end": 38.75,
+                "end": 31.15,
                 "id": "seg_0"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " Hmm.",
+                "speaker": "B",
+                "start": 31.15,
+                "end": 31.25,
+                "id": "seg_1"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " این یه مودل حاب داره شما بینید حاب مودل های مختلف گذاشتن کلن خب ولی بستگیری مودلا",
+                "speaker": "A",
+                "start": 31.25,
+                "end": 38.55,
+                "id": "seg_2"
             }
         ],
         "chunk_4_39.100": [
             {
                 "type": "transcript.text.segment",
-                "text": " من خیلی چیز عجیبی از توش پیدا نکردم گفتم پیشتن یرخی یه چیزی بود 13 خورده میلیون دولار شده بود یه مدلی بود که گفتم سرخ سگمنت 3 بود یعنی",
+                "text": " من خرجی در جیبیت توش پیدا نکردم گفتم پیشترین نرخه یه چیزی بود چیزا خرده میلیون دولار چیزه بود یه مدلی بود که گفتم فقط سگمنت سه بود یعنی",
                 "speaker": "A",
                 "start": 39.1,
                 "end": 48.300000000000004,
@@ -93,7 +109,7 @@
         "chunk_5_49.100": [
             {
                 "type": "transcript.text.segment",
-                "text": " حرف که لطفی شنیده شرفت ترسیده کار",
+                "text": " 7-11-12-13-14-15",
                 "speaker": "A",
                 "start": 49.1,
                 "end": 51.75,
@@ -101,85 +117,93 @@
             },
             {
                 "type": "transcript.text.segment",
-                "text": " آهان فهمیدم",
+                "text": " اون",
                 "speaker": "B",
                 "start": 51.75,
-                "end": 52.45,
+                "end": 52.25,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " در میاره ولی نمیدونم لیتنسیش چقدر باید تست کنید و داستانش چیه",
+                "text": " کار در میاره ولی نمیدونم لیتنسش چقدر باید ترس کندیم داستانش چیه",
                 "speaker": "A",
-                "start": 52.45,
+                "start": 52.25,
                 "end": 56.4,
                 "id": "seg_2"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " فهمیدم",
+                "speaker": "B",
+                "start": 57.7,
+                "end": 58.45,
+                "id": "seg_3"
             }
         ],
         "chunk_6_59.100": [
             {
                 "type": "transcript.text.segment",
-                "text": " تو آره راییتون از بسلیه؟",
+                "text": " آقا یه راییتونه درستی؟",
                 "speaker": "A",
-                "start": 62.5,
-                "end": 64.3,
+                "start": 62.65,
+                "end": 64.35,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " نه حاج رایتلالو تست نکردم یعنی یه روزه چون هم روز اول هم خیلی خوب بس شد",
-                "speaker": "B",
-                "start": 64.45,
-                "end": 68.60000000000001,
+                "text": " نه حاج راییتلرو تست نکردم این گروز چون هم رای اولم خیلی خوب از",
+                "speaker": "A",
+                "start": 64.5,
+                "end": 68.5,
                 "id": "seg_1"
             }
         ],
         "chunk_7_68.900": [
             {
                 "type": "transcript.text.segment",
-                "text": " تو زده دیکتور فال میگرفتن",
+                "text": " تو دیگه تا فهم گرفتم",
                 "speaker": "A",
                 "start": 68.9,
-                "end": 70.25,
+                "end": 70.2,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
                 "text": " جدی؟",
-                "speaker": "B",
-                "start": 70.30000000000001,
+                "speaker": "A",
+                "start": 70.25,
                 "end": 71.10000000000001,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " آره",
+                "text": " آره ایول",
                 "speaker": "A",
                 "start": 71.10000000000001,
-                "end": 71.65,
+                "end": 72.5,
                 "id": "seg_2"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " ولی خوب اینا",
-                "speaker": "B",
-                "start": 72.15,
+                "text": " خیلی خوب اینا",
+                "speaker": "A",
+                "start": 72.5,
                 "end": 73.45,
                 "id": "seg_3"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " هم تی ولی بشین فیگامیک ها جایی نباکم خیلی سکسی",
-                "speaker": "B",
-                "start": 74.05000000000001,
-                "end": 76.55,
+                "text": " مرتی ولی بشین فیلم ریکاجی نگاه کن خیلی سیکسی",
+                "speaker": "A",
+                "start": 74.15,
+                "end": 77.10000000000001,
                 "id": "seg_4"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " ایوه حاجی این لینکی الان باید میفرم",
+                "text": " حاجی این لینک یه الان باید میفرم",
                 "speaker": "A",
-                "start": 76.55,
+                "start": 77.10000000000001,
                 "end": 78.65,
                 "id": "seg_5"
             }
@@ -187,149 +211,189 @@
         "chunk_8_78.700": [
             {
                 "type": "transcript.text.segment",
-                "text": " تا تو هم تیبا کنی",
+                "text": " و سمتی باکنی اینو",
                 "speaker": "A",
                 "start": 78.7,
-                "end": 79.55,
+                "end": 80.10000000000001,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
                 "text": " بگو بگو بگو کجا آره بگو",
-                "speaker": "B",
-                "start": 80.05,
-                "end": 81.65,
+                "speaker": "A",
+                "start": 80.10000000000001,
+                "end": 81.9,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " اینو دادم بهت با کن",
+                "text": " دادم بهت با کن هی",
                 "speaker": "A",
-                "start": 81.65,
-                "end": 83,
+                "start": 81.9,
+                "end": 84.05,
                 "id": "seg_2"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " نه",
-                "speaker": "B",
-                "start": 86.3,
-                "end": 86.45,
-                "id": "seg_3"
-            },
-            {
-                "type": "transcript.text.segment",
-                "text": " ای بابا اشتباه دادم باستم ببینم چی",
+                "text": " بابا اشتباه دادم باید سنگم چی",
                 "speaker": "A",
-                "start": 86.5,
-                "end": 88.5,
-                "id": "seg_4"
+                "start": 86.95,
+                "end": 88.60000000000001,
+                "id": "seg_3"
             }
         ],
         "chunk_9_88.700": [
             {
                 "type": "transcript.text.segment",
-                "text": " شوکیست",
-                "speaker": "A",
+                "text": " Show paste.",
+                "speaker": "B",
                 "start": 88.7,
-                "end": 89.3,
+                "end": 89.05,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " این نتم گاز گاز",
-                "speaker": "B",
-                "start": 91.60000000000001,
-                "end": 94.2,
+                "text": " این نهتم و این نهتم گرده بگرده",
+                "speaker": "A",
+                "start": 91.5,
+                "end": 94.25,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " مگه الان بس نشد",
-                "speaker": "A",
-                "start": 96.9,
-                "end": 98.15,
+                "text": " مگه الان بست نشد",
+                "speaker": "B",
+                "start": 96.75,
+                "end": 98.05000000000001,
                 "id": "seg_2"
             }
         ],
         "chunk_10_98.500": [
             {
                 "type": "transcript.text.segment",
-                "text": " یکینه",
-                "speaker": "A",
+                "text": " اینه این",
+                "speaker": "B",
                 "start": 98.5,
-                "end": 98.8,
+                "end": 99,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " این چه درم گردان در این لحظه که کانکت شدن",
-                "speaker": "B",
+                "text": " این چهره الان در این لحظه کانکت شده شاید",
+                "speaker": "A",
                 "start": 99,
-                "end": 101.8,
+                "end": 102.4,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " یکی وارپون",
-                "speaker": "A",
-                "start": 101.8,
-                "end": 103.5,
+                "text": " یکی جواب شده",
+                "speaker": "B",
+                "start": 102.4,
+                "end": 103.8,
                 "id": "seg_2"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " شاید چون دارم با تلفان صحبت میکنم",
-                "speaker": "B",
-                "start": 103.5,
-                "end": 105.8,
+                "text": " چون دارم با تلفن صحبت می کنم",
+                "speaker": "A",
+                "start": 103.8,
+                "end": 105.75,
                 "id": "seg_3"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " شاید ویسپیر",
+                "speaker": "B",
+                "start": 106.25,
+                "end": 107.3,
+                "id": "seg_4"
             }
         ],
         "chunk_11_108.200": [
             {
                 "type": "transcript.text.segment",
-                "text": " بعد از این شما یک شعر دروی سر رجمیش",
-                "speaker": "A",
+                "text": " در اجرام سرش",
+                "speaker": "B",
                 "start": 108.2,
-                "end": 111.25,
+                "end": 109.10000000000001,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " اینو باز کن هر وقت آمد",
-                "speaker": "B",
-                "start": 111.85000000000001,
-                "end": 113.65,
+                "text": " شمار",
+                "speaker": "A",
+                "start": 109.10000000000001,
+                "end": 109.45,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " یه بخشن خام",
-                "speaker": "A",
-                "start": 115.5,
-                "end": 116.55000000000001,
+                "text": " اینو",
+                "speaker": "B",
+                "start": 109.45,
+                "end": 109.95,
                 "id": "seg_2"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " یه شاده روی سرشون میشه یه",
+                "speaker": "A",
+                "start": 109.95,
+                "end": 112.3,
+                "id": "seg_3"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " باز کن هر وقت اومد",
+                "speaker": "B",
+                "start": 112.3,
+                "end": 113.7,
+                "id": "seg_4"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " لحظه خواه",
+                "speaker": "A",
+                "start": 116.05,
+                "end": 116.60000000000001,
+                "id": "seg_5"
             }
         ],
         "chunk_12_118.200": [
             {
                 "type": "transcript.text.segment",
-                "text": " Ben az biraz özüne dikkat edin.",
+                "text": " Ve ayrıca da özelliklerini tekrik etmek lazım.",
                 "speaker": "A",
-                "start": 122.85000000000001,
-                "end": 124.85000000000001,
+                "start": 123.10000000000001,
+                "end": 125.55,
                 "id": "seg_0"
             }
         ],
         "chunk_13_128.000": [
             {
                 "type": "transcript.text.segment",
-                "text": " یه پینگار دارم امر رو پینگی بدم به ما پینگ پونگ درست میشه یا پینگ پونگ درست نمیشه پینگ پونگ قرمز رنگ درست",
+                "text": " یک پینگ گذازم همه رو پینگی بدم برم",
                 "speaker": "A",
                 "start": 128,
-                "end": 137.85,
+                "end": 131.65,
                 "id": "seg_0"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " پینگ پونجی درست نمیشه یا پینگ پونجی درست نمیشه",
+                "speaker": "A",
+                "start": 132.5,
+                "end": 135.3,
+                "id": "seg_1"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " پینگ پونجی قرمز رنگ درست",
+                "speaker": "A",
+                "start": 135.95,
+                "end": 137.8,
+                "id": "seg_2"
             }
         ],
         "chunk_14_138.000": [
@@ -338,38 +402,38 @@
                 "text": " میشه",
                 "speaker": "A",
                 "start": 138,
-                "end": 138.2,
+                "end": 138.25,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " چون زمینم رو به من تینکس میخوام مدله رو چیز کنم به بیاقی برسونم",
+                "text": " چون زمین ما برامت این نیست میخوام مدل رو چی کنم به یخی برسم",
                 "speaker": "A",
-                "start": 139.55,
-                "end": 145.7,
+                "start": 139.7,
+                "end": 145.55,
                 "id": "seg_1"
             }
         ],
         "chunk_15_148.000": [
             {
                 "type": "transcript.text.segment",
-                "text": " حاجی الان منو اگه این جیپی تیوازن نگنم الان میلیاردارم گنم",
+                "text": " حاجه الانم و اگه این جیبتی رو زن نکردم الان میلیارد رو گرنوش",
                 "speaker": "A",
-                "start": 148.85,
-                "end": 153.95,
+                "start": 148.9,
+                "end": 154.1,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " Ha ha ha ha.",
+                "text": " Ha, ha, ha.",
                 "speaker": "B",
-                "start": 154.3,
+                "start": 154.2,
                 "end": 155.15,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " خیر خدا",
+                "text": " پخ خدا",
                 "speaker": "A",
                 "start": 155.85,
                 "end": 156.7,
@@ -379,33 +443,33 @@
         "chunk_16_158.000": [
             {
                 "type": "transcript.text.segment",
-                "text": " المچه از تو بالی نشته بودن مثلا",
-                "speaker": "A",
+                "text": " لیموچه سبار لیه نشته بودن مثلا خیلی",
+                "speaker": "B",
                 "start": 158,
-                "end": 160.2,
+                "end": 161.45,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " هلا نمان",
-                "speaker": "B",
-                "start": 160.2,
-                "end": 161.15,
+                "text": " اللمو",
+                "speaker": "A",
+                "start": 161.45,
+                "end": 161.95,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " خیلی بالده",
-                "speaker": "A",
-                "start": 161.15,
-                "end": 162.45,
+                "text": " بالده",
+                "speaker": "B",
+                "start": 161.95,
+                "end": 162.4,
                 "id": "seg_2"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " حاجی اسمی چیزی که گفتی راستو کتو",
-                "speaker": "B",
-                "start": 163.45,
+                "text": " حاجی اسم چیزی که گفتی برای سکیتو",
+                "speaker": "A",
+                "start": 163.4,
                 "end": 166.8,
                 "id": "seg_3"
             }
@@ -413,7 +477,7 @@
         "chunk_17_168.000": [
             {
                 "type": "transcript.text.segment",
-                "text": " میدونی از چی بذاریم نمو",
+                "text": " میگه از راچی بذاریم نمو",
                 "speaker": "A",
                 "start": 168,
                 "end": 169.45,
@@ -424,67 +488,99 @@
                 "text": " چی؟",
                 "speaker": "B",
                 "start": 169.45,
-                "end": 170.65,
+                "end": 170.1,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " نه سندی سندی یا نمو نمو",
+                "text": " نه سندی سندی یا نمو",
                 "speaker": "A",
-                "start": 171.55,
-                "end": 176,
+                "start": 170.1,
+                "end": 175.75,
                 "id": "seg_2"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " باحاله واقعا باحاله",
+                "text": " باحاله",
                 "speaker": "B",
-                "start": 176,
-                "end": 177.7,
+                "start": 175.75,
+                "end": 175.95,
                 "id": "seg_3"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " سندی",
+                "speaker": "A",
+                "start": 175.95,
+                "end": 176.8,
+                "id": "seg_4"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " واقعا باحاله",
+                "speaker": "B",
+                "start": 176.8,
+                "end": 177.65,
+                "id": "seg_5"
             }
         ],
         "chunk_18_177.800": [
             {
                 "type": "transcript.text.segment",
-                "text": " نمیگه یادم آره نیفتید",
+                "text": " نیبوچه یادت",
                 "speaker": "A",
                 "start": 177.8,
-                "end": 178.75,
+                "end": 178.25,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " یادم یادم آبیه",
+                "text": " آره",
                 "speaker": "B",
-                "start": 178.75,
-                "end": 180.20000000000002,
+                "start": 178.25,
+                "end": 178.55,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " یا سینوی بذار یادم نمو نمو نمو چه نمو حام",
+                "text": " میره",
                 "speaker": "A",
-                "start": 180.20000000000002,
-                "end": 186.05,
+                "start": 178.55,
+                "end": 178.8,
                 "id": "seg_2"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " یادم یادم آدی",
+                "speaker": "B",
+                "start": 178.8,
+                "end": 180.45000000000002,
+                "id": "seg_3"
+            },
+            {
+                "type": "transcript.text.segment",
+                "text": " یه سینیو بذار یا یه نمو نمو نمو چونه ماه",
+                "speaker": "A",
+                "start": 180.45000000000002,
+                "end": 186.05,
+                "id": "seg_4"
             }
         ],
         "chunk_19_187.800": [
             {
                 "type": "transcript.text.segment",
-                "text": " نموتیست نموت چطن نموت چطن",
+                "text": " نمی پیست نمی چتم نمی چت بود",
                 "speaker": "A",
                 "start": 187.8,
-                "end": 191.95000000000002,
+                "end": 191.8,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " بگو بس نمیشتم همچین همه چیز عوض",
+                "text": " گلو برس نمیشنه موشین همه چیز رشت",
                 "speaker": "A",
-                "start": 194.65,
-                "end": 196.9,
+                "start": 194.85000000000002,
+                "end": 197.10000000000002,
                 "id": "seg_1"
             }
         ],
@@ -492,74 +588,74 @@
             {
                 "type": "transcript.text.segment",
                 "text": " اه",
-                "speaker": "A",
+                "speaker": "B",
                 "start": 198.20000000000002,
-                "end": 198.95000000000002,
+                "end": 198.8,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " بنده آره",
-                "speaker": "B",
-                "start": 199.55,
-                "end": 201.3,
+                "text": " من دی آره",
+                "speaker": "A",
+                "start": 199.4,
+                "end": 201.25,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " به پاریسه چاره اسمش دیگه",
-                "speaker": "A",
-                "start": 201.3,
-                "end": 203.35000000000002,
+                "text": " به پاریس چار اسمش دیگه",
+                "speaker": "B",
+                "start": 201.25,
+                "end": 203.25,
                 "id": "seg_2"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " بهتون من فرست دادید داشتم اون نتوکد",
-                "speaker": "B",
-                "start": 204.85000000000002,
-                "end": 206.9,
+                "text": " بهتا من فرست دادیده داشتون نتو وقت",
+                "speaker": "A",
+                "start": 204.8,
+                "end": 206.8,
                 "id": "seg_3"
             }
         ],
         "chunk_21_207.300": [
             {
                 "type": "transcript.text.segment",
-                "text": " چون داری رکورد میکنی مثلا یه بخش دیوائست نتش قطع شد",
-                "speaker": "A",
+                "text": " چون داری رکورد میکنی مثلا یه بخشی از دیوائستت نتش قطع شد",
+                "speaker": "B",
                 "start": 207.3,
-                "end": 211.4,
+                "end": 211.45000000000002,
                 "id": "seg_0"
             },
             {
                 "type": "transcript.text.segment",
                 "text": " ممکنه ممکنه",
-                "speaker": "B",
-                "start": 211.4,
-                "end": 212.65,
+                "speaker": "A",
+                "start": 211.45000000000002,
+                "end": 212.55,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " خب قبل قطع کن تست کن ببین",
-                "speaker": "A",
-                "start": 212.65,
+                "text": " خب بخواه قطع کن تست کن بده",
+                "speaker": "B",
+                "start": 212.55,
                 "end": 215,
                 "id": "seg_2"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " ممکنه",
-                "speaker": "B",
+                "text": " موقعیان قطع",
+                "speaker": "A",
                 "start": 215,
-                "end": 215.20000000000002,
+                "end": 216.35000000000002,
                 "id": "seg_3"
             }
         ],
         "chunk_22_216.500": [
             {
                 "type": "transcript.text.segment",
-                "text": " سلام",
+                "text": " ممنون",
                 "speaker": "A",
                 "start": 216.5,
                 "end": 216.5,
@@ -567,18 +663,18 @@
             },
             {
                 "type": "transcript.text.segment",
-                "text": " ای ولمو کاره ملن خوبه دیگه 3 دقیقه و 37 داریم",
+                "text": " ای ولم به کارده ملن خوبه دیگه 3 دقیقه 37 داریم",
                 "speaker": "B",
                 "start": 216.5,
-                "end": 219,
+                "end": 218.9,
                 "id": "seg_1"
             },
             {
                 "type": "transcript.text.segment",
-                "text": " آره آره آره قطعش کنم",
+                "text": " آره آره آره آره غشت باش",
                 "speaker": "A",
-                "start": 219,
-                "end": 220.45,
+                "start": 218.9,
+                "end": 220.35,
                 "id": "seg_2"
             }
         ]
